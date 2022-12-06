@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
 import re
 
-crates = {
-    1: ["W","M","L","F"],
-    2: ["B","Z","V","M","F"],
-    3: ["H","V","R","S","L","Q"],
-    4: ["F","S","V","Q","P","M","T","J"],
-    5: ["L","S","W"],
-    6: ["F","V","P","M","R","J","W"],
-    7: ["J","Q","C","P","N","R","F"],
-    8: ["V","H","P","S","Z","W","R","B"],
-    9: ["B","M","J","C","G","H","Z","W"],
-}
+# crates = {
+#     # 1: ["W","M","L","F"],
+#     # 2: ["B","Z","V","M","F"],
+#     # 3: ["H","V","R","S","L","Q"],
+#     # 4: ["F","S","V","Q","P","M","T","J"],
+#     # 5: ["L","S","W"],
+#     # 6: ["F","V","P","M","R","J","W"],
+#     # 7: ["J","Q","C","P","N","R","F"],
+#     # 8: ["V","H","P","S","Z","W","R","B"],
+#     # 9: ["B","M","J","C","G","H","Z","W"],
+# }
 
+crates = defaultdict(list)
 moves = []
 
 def getTopCrates(crates):
@@ -29,20 +31,32 @@ def applyMoves(crates, moves):
     for move in moves:
         numCrates, fromStack, toStack = move
 
-        for _ in range(int(numCrates)):
+        for _ in range(numCrates):
             # assume we always have enough crates to move from old stack to new stack
-            crate = crates[int(fromStack)].pop()
-            crates[int(toStack)].append(crate)
+            crate = crates[fromStack].pop()
+            crates[toStack].append(crate)
 
-with open('input5.txt') as f:
+def parseCrates(line: str):
+    stackNum = 1
+
+    for i in range(0, len(line), 4):
+        potentialCrate = line[i:i+4].strip()
+
+        if len(potentialCrate) == 3:
+            crates[stackNum].append(potentialCrate.strip("[]"))
+        
+        stackNum += 1
+
+with open('5/input5.txt') as f:
     for line in f.readlines():
         strippedLine = line.strip()
 
-        if len(strippedLine) > 0 and "move" in strippedLine:
-            moves.append(re.findall(r'\d+', strippedLine))
+        if "move" in strippedLine:
+            moves.append([int(x) for x in re.findall(r'\d+', strippedLine)])
+        elif len(strippedLine) > 0:
+            parseCrates(line)
 
     f.close()
 
-# print(moves)
 applyMoves(crates, moves)
 print(''.join(getTopCrates(crates)))
