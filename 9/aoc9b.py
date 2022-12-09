@@ -53,14 +53,19 @@ def moveBody(body, newHead):
         headRowIdx, headColIdx = body[i-1]
         tailRowIdx, tailColIdx = body[i]
 
-        if headRowIdx - tailRowIdx == 2:
-            tailRowIdx += 1
-        if headRowIdx - tailRowIdx == -2:
-            tailRowIdx -= 1
-        if headColIdx - tailColIdx == 2:
-            tailColIdx += 1 
-        if headColIdx - tailColIdx == -2:
-            tailColIdx -= 1 
+        diffRow = headRowIdx - tailRowIdx
+        diffCol = headColIdx - tailColIdx
+
+        if abs(diffRow) == 2:
+            tailRowIdx += 1 if diffRow > 0 else -1 
+
+            if abs(diffCol) == 1:
+                tailColIdx += diffCol
+        if abs(diffCol) == 2:
+            tailColIdx += 1 if diffCol > 0 else - 1
+
+            if abs(diffRow) == 1:
+                tailRowIdx += diffRow
 
         body[i] = (tailRowIdx, tailColIdx)
 
@@ -76,49 +81,27 @@ def getNumTailPositions(moves, grid):
     for move in moves:
         direction, numSteps = move
 
-        match direction:
-            case "L":
-                while numSteps > 0:
-                    numSteps -= 1
-                    headRowIdx, headColIdx = bodyPositions[0]
+        while numSteps > 0:
+            numSteps -= 1
+            headRowIdx, headColIdx = bodyPositions[0]
+
+            match direction:
+                case "L":
                     headColIdx -= 1
-
-                    bodyPositions = moveBody(bodyPositions, (headRowIdx, headColIdx))
-
-                    tailRowIdx, tailColIdx = bodyPositions[-1]
-                    grid[tailRowIdx][tailColIdx] = 1
-            case "R":
-                while numSteps > 0:
-                    numSteps -= 1
-                    headRowIdx, headColIdx = bodyPositions[0]
+                case "R":
                     headColIdx += 1
-
-                    bodyPositions = moveBody(bodyPositions, (headRowIdx, headColIdx))
-
-                    tailRowIdx, tailColIdx = bodyPositions[-1]
-                    grid[tailRowIdx][tailColIdx] = 1
-            case "U":
-                while numSteps > 0:
-                    numSteps -= 1
-                    headRowIdx, headColIdx = bodyPositions[0]
+                case "U":
                     headRowIdx -= 1
-
-                    bodyPositions = moveBody(bodyPositions, (headRowIdx, headColIdx))
-
-                    tailRowIdx, tailColIdx = bodyPositions[-1]
-                    grid[tailRowIdx][tailColIdx] = 1
-            case "D":
-                while numSteps > 0:
-                    numSteps -= 1
-                    headRowIdx, headColIdx = bodyPositions[0]
+                case "D":
                     headRowIdx += 1
 
-                    bodyPositions = moveBody(bodyPositions, (headRowIdx, headColIdx))
+            bodyPositions = moveBody(
+                bodyPositions, (headRowIdx, headColIdx))
 
-                    tailRowIdx, tailColIdx = bodyPositions[-1]
-                    grid[tailRowIdx][tailColIdx] = 1
+            tailRowIdx, tailColIdx = bodyPositions[-1]
+            grid[tailRowIdx][tailColIdx] = 1
         
-        print(bodyPositions)
+        # print(bodyPositions)
 
     return sum([sum(row) for row in grid])
 
